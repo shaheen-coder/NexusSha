@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- for-mobile-apps -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="theme-color" content="#25274d">
+    <meta name="description" content="A bus seat reservation system made by James">
+    <meta name="author" content="James Muriitih">
+    <meta name="keywords" content="bus,bus seats,">
+
+    <!-- //for-mobile-apps -->
+    <title>Bus Reservation</title>
+    <!-- icons -->
+    <link rel="icon" type="image/png" href="/booking/images/logo-96.png" sizes="96x96" />
+    <link rel="icon" type="image/png" href="/booking/images/logo-16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="/booking/images/logo-32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/booking/images/logo-64.png" sizes="64x64" />
+    <link rel="icon" type="image/png" href="/booking/images/logo-128.png" sizes="128x128" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/booking/images/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/booking/images/safari-pinned-tab.svg" color="#5bbad5" />
+    <!-- end of icons  -->
+    <!-- css -->
+    <link rel="stylesheet" type="text/css" href="/booking/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/bootstrapValidator.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/nice-select.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/util.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/jquery.seat-charts.css">
+    <link rel="stylesheet" type="text/css" href="/booking/fonts/font-awesome/css/font-awesome.min.css">
+    <link href="/booking/fonts/material-design-icons/material-icon.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="/booking/plugins/material-datetimepicker/bootstrap-material-datetimepicker.css" />
+    <link rel="stylesheet" type="text/css" href="/booking/css/animate.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/material.min.css">
+    <link rel="stylesheet" type="text/css" href="/booking/plugins/lobibox/css/lobibox.min.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/simplelightbox.min.css">
+    <link rel="stylesheet" type="text/css" href="/booking/css/style.css">
+    <!-- end of css -->
+</head>
+<style>
+    #seat-map {
+        display: block;
+        /* Ensure the container is visible */
+    }
+
+    .seat-row {
+        display: flex;
+        /* Arrange seats in a row */
+        margin-bottom: 10px;
+        /* Space between rows */
+    }
+
+    .seat {
+        width: 30px;
+        /* Fixed width for seats */
+        height: 30px;
+        /* Fixed height for seats */
+        margin: 5px;
+        /* Spacing between seats */
+        background-color: #ccc;
+        /* Default color for available seats */
+        text-align: center;
+        /* Center the seat number */
+        line-height: 30px;
+        /* Vertically center the text */
+        cursor: pointer;
+        /* Indicate clickability */
+    }
+
+    .seat.booked {
+        background-color: #f00;
+        /* Red for booked seats */
+        cursor: not-allowed;
+        /* Non-clickable for booked seats */
+    }
+
+    .seat.selected {
+        background-color: #0f0;
+        /* Green for selected seats */
+    }
+</style>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark static-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <h1>
+                    <img src="/booking/images/p1.png" alt="logo" width="30" height="30" style="margin-top: -10px">
+                    <span>Nexus</span>
+                    <span>Sha</span>
+                </h1>
+            </a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+
+            </div>
+        </div>
+    </nav>
+    <!-- </navbar -->
+    <!-- main content -->
+    <main class="col-md-12">
+        <div class="col-md-11 col-lg-9 col-xl-8 mx-auto window">
+            <section class="stepper">
+                <!-- progressbar -->
+                <ul id="progressbar" style="padding-inline-start:8px;">
+                    <li class="active">Travel Date</li>
+                    <li>Available Buses</li>
+                    <li>Book Seat</li>
+                    <li>Details</li>
+                    <li>Payment</li>
+                    <li>Ticket</li>
+                </ul>
+            </section>
+            <!-- place  -->
+            <section class="body">
+                <form id="date_form">
+                    <fieldset class="animated fadeIn">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>From</label>
+                                <select class="form-control from " name="from" id="from_place" required>
+                                    <option disabled>--PickUp Point--</option>
+                                    <option value="chidambaram">chidambaram</option>
+                                    <option value="mayiladuthurai">mayiladuthurai</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label>To</label>
+                                <select class="form-control from " name="from" id="to_place" required>
+                                    <option disabled>--PickUp Point--</option>
+                                    <option value="bengaluru">Bengaluru</option>
+                                    <option value="chennai">Chennai</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label>Date of travel</label>
+                                <input type="text" class="form-control" id="date" name="date" placeholder="2019-02-14"
+                                    value="2025-04-29">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center buttons">
+                            <button type="button" class="btn next_button">Continue</button>
+                        </div>
+                    </fieldset>
+                    <!-- bus -->
+                    <fieldset class="animated fadeIn">
+                        <div id="results">
+                            <!-- <h6>3 buses found</h6> -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-3 bus-image">
+                                                    <img src="/booking/images/p2.png" alt="bus" height="130"
+                                                        width="130">
+                                                </div>
+                                                <div class="col-md-8 bus-details">
+                                                    <h5 class="card-title bus-name">KCD 452G (<span
+                                                            class="bus-type fs-13">Majaoni School Bus</span>)</h5>
+                                                    <div class="row card-text m-b-10 bus-description">
+                                                        <div class="col-sm-6 fs-14">
+                                                            <i class="material-icons" style="font-size: 13px;">watch</i>
+                                                            Departure: <span class="p-r-5 fr">20:30hr </span>
+                                                        </div>
+                                                        <div class="col-sm-6 fs-14">
+                                                            <i class="fa fa-road"></i> Route:
+                                                            <span class="p-r-5 fr"><span class="from"></span> - <span
+                                                                    class="to"></span> </span>
+                                                        </div>
+                                                        <div class="col-sm-6 fs-14">
+                                                            <i class="material-icons"
+                                                                style="font-size: 13px;">event_seat</i> Availability:
+                                                            <span class="p-r-5 fr"><span class="seats-left">0</span>
+                                                                seats left </span>
+                                                        </div>
+                                                        <div class="col-sm-6 fs-14">
+                                                            <i class="fa fa-money"></i> Fare:
+                                                            <span class="p-r-5 fr">3000 Kes </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="p-t-13">
+                                                        <a href="#" class="btn btn-circle btn-success book_btn"
+                                                            data-bus="1">Book Seats</a>
+                                                        <a href="#" class="fr p-t-13 g-link">View Gallery</a>
+                                                        <div class="gallery1" style="display: none;">
+                                                            <a href="gallery/majaoni1.jpg">
+                                                                <img src="/booking/gallery/majaoni1.jpg" alt=""
+                                                                    title="Majaoni Secondary Bus" />
+                                                            </a>
+                                                            <a href="gallery/majaoni2.jpg">
+                                                                <img src="/booking/gallery/majaoni2.jpg" alt=""
+                                                                    title="Majaoni Secondary Bus" />gallery/majaoni3.jpg"
+                                                                alt=""
+                                                                title="Majaoni Secondary Bus" />
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <div class="col-md-3 bus-image">
+                                                        <img src="/booking/images/p.png" alt="bus" height="130"
+                                                            width="130">
+                                                    </div>
+                                                    <div class="col-md-8 bus-details">
+                                                        <h5 class="card-title bus-name">KCP 578X (<span
+                                                                class="bus-type">45</span> Seater)</h5>
+                                                        <div class="row card-text m-b-10 bus-description">
+                                                            <div class="col-md-6 fs-14">
+                                                                <i class="material-icons"
+                                                                    style="font-size: 13px;">watch</i> Departure: <span
+                                                                    class="p-r-5 fr">20:30hr </span>
+                                                            </div>
+                                                            <div class="col-md-6 fs-14">
+                                                                <i class="fa fa-road"></i> Route:
+                                                                <span class="p-r-5 fr">Nairobi - Mombasa </span>
+                                                            </div>
+                                                            <div class="col-md-6 fs-14">
+                                                                <i class="material-icons"
+                                                                    style="font-size: 13px;">event_seat</i>
+                                                                Availability:
+                                                                <span class="p-r-5 fr">12 seats left </span>
+                                                            </div>
+                                                            <div class="col-md-6 fs-14">
+                                                                <i class="fa fa-money"></i> Fare:
+                                                                <span class="p-r-5 fr">1400 Kes </span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="p-t-13">
+                                                            <a href="#"
+                                                                class="btn btn-circle btn-success disabled book_btn">Book
+                                                                Seats</a>
+                                                            <a href="#" class="fr p-t-10">View Gallery</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center buttons">
+                            <button type="button " class="btn previous_button">Back</button>
+                        </div>
+                    </fieldset>
+                    <!-- seat map -->
+                    <fieldset class="animated fadeIn">
+                        <div id="seats">
+                            <div class="row no-gutters">
+                                <div class="col-lg-8 col-xl-6 col-sm-8 col-md-7">
+                                    <div id="seat-map">
+                                        <div class="front-indicator">
+                                            <img src="/booking/images/driver.png" alt="Driver" height="">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-xl-6 col-sm-4 col-md-5">
+                                    <div class="booking-details">
+                                        <h2 class="header">Booking Details
+                                            <span class="number_plate badge badge-primary fs-12"></span>
+                                        </h2>
+                                        <h3> Selected Seats <span id="counter">0</span> : </h3>
+                                        <ul id="selected-seats">
+                                        </ul>
+                                        <p>Total: <b><span id="total">0</span> rupees</b></p>
+                                        <br>
+                                    </div>
+                                    <!-- <div id="legend" class=""></div> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row justify-content-center buttons ">
+                            <button type="button " class="btn previous_button">Back</button>
+                            <button type="button " class="btn next_button btn-booked">Continue</button>
+                        </div>
+                    </fieldset>
+                    <!-- END SEAT MAP -->
+                    <!-- PERSONAL INFO -->
+                    <fieldset class="animated fadeIn p-info">
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="name">Full Name</label>
+                                <input type="text" class="form-control" name="name" placeholder="Shaheen VSA"
+                                    onkeyup="verifyInfoForm()" id="name">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="id">aadhar card No</label>
+                                <input type="text" class="form-control" name="id" placeholder="12345678"
+                                    onkeyup="verifyInfoForm()" id="id">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="phone">Mobile No.</label>
+                                <input type="text" class="form-control" id="phone" name="phone" id="phone"
+                                    placeholder="9623456789" onkeyup="verifyInfoForm()">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="text">address </label>
+                                <input type="text" class="form-control" id="address" name="address"
+                                    placeholder="123 Street, New York, USA" onkeyup="verifyInfoForm()">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center buttons">
+                            <button type="button " class="btn previous_button">Back</button>
+                            <button type="button " class="btn next_button">Continue</button>
+                        </div>
+                    </fieldset>
+                    <!-- END PERSONAL INFO -->
+                    <!-- PAYMENT -->
+                    <fieldset class="animated fadeIn p-info">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-10 text-center">
+                                <h6>Enter credit card number below with a smile! 😊 we don't steal ur money</h6>
+                                <input type="text" class="form-control mb-3" placeholder="Enter credit card number">
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center buttons mt-3">
+                            <button type="button " class="btn previous_button">Back</button>
+                            <button type="button " class="btn next_button">Finish</button>
+                        </div>
+                    </fieldset>
+                    <fieldset class="animated fadeIn p-info">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-10 text-center">
+                                <h6>booking done successfully </h6>
+                                <button class="form-control mb-3 w-3" id="ticket-print">print ticket</button>
+                            </div>
+                        </div>
+
+                        <div class="row justify-content-center buttons mt-3">
+                            <button type="button " class="btn previous_button">Back</button>
+                        </div>
+                    </fieldset>
+                    <!-- END TICKET -->
+                </form>
+            </section>
+        </div>
+    </main>
+</body>
+
+</html>
+<!-- javascript -->
+<script type="text/javascript " src="/booking/js/jquery.min.js "></script>
+<script type="text/javascript " src="/booking/js/popper.min.js "></script>
+<script type="text/javascript " src="/booking/js/bootstrap.min.js "></script>
+<script type="text/javascript " src="/booking/js/bootstrapValidator.js"></script>
+<script type="text/javascript " src="/booking/js/jquery-easing.min.js "></script>
+<script type="text/javascript " src="/booking/js/jquery.nice-select.js "></script>
+<script type="text/javascript " src="/booking/js/jquery.seat-charts.js "></script>
+<script src="/booking/plugins/material-datetimepicker/moment-with-locales.min.js "></script>
+<script src="/booking/plugins/material-datetimepicker/bootstrap-material-datetimepicker.js "></script>
+<script src="/booking/plugins/material-datetimepicker/datetimepicker.js "></script>
+<script type="text/javascript" src="/booking/js/simple-lightbox.min.js"></script>
+<script type="text/javascript" src="/booking/plugins/lobibox/js/lobibox.min.js"></script>
+<script type="text/javascript " src="/booking/js/script.js "></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const fieldsets = Array.from(document.querySelectorAll('fieldset'));
+        const progressItems = Array.from(document.querySelectorAll('#progressbar li'));
+        let currentIndex = 0;
+        let animating = false;
+        let busId = 0;
+        let seatsArray = [];
+        let formData = {};
+        let bookingData = {}; // To store bus_id, seats, and price
+        let UserData = {}; // to store address, id , phone nummber  
+        // Gallery link trigger
+        document.querySelectorAll('.g-link').forEach(el => {
+            el.addEventListener('click', () => {
+                const galleryLink = document.querySelector('.gallery1 a');
+                if (galleryLink) galleryLink.click();
+            });
+        });
+
+        // Globals for seat map
+        let currentBusId = null;
+        let busPrice = 0;
+        let selectedSeats = [];
+
+        // 1) SEARCH → BUS LIST
+        function fetchBuses(data) {
+            console.log(`API call data: ${JSON.stringify(data)}`);
+            fetch('http://localhost:8000/api/bus', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+            })
+                .then(res => res.json())
+                .then(json => {
+                    if (json.status === 'success') {
+                        populateBusResults(json.data);
+                    } else {
+                        console.error('Search error:', json);
+                        // Add notification if needed
+                    }
+                })
+                .catch(err => console.error('Fetch error:', err));
+        }
+
+        function populateBusResults(buses) {
+            const results = document.querySelector('#results .row .col-md-12');
+            results.innerHTML = ''; // Clear old cards
+
+            buses.forEach(bus => {
+                // Calculate available seats from seats JSON
+                const seatsObj = JSON.parse(bus.seats);
+                const availableSeats = Object.values(seatsObj).filter(status => status === 0).length;
+
+                // Create a card for each bus
+                const col = document.createElement('div');
+                col.className = 'col-md-12';
+                col.innerHTML = `
+                    <div class="card" data-bus-id="${bus.id}">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 bus-image">
+                                    <img src="/booking/images/p2.png" alt="bus" height="130" width="130">
+                                </div>
+                                <div class="col-md-8 bus-details">
+                                    <h5 class="card-title bus-name">${bus.name}</h5>
+                                    <div class="row card-text m-b-10 bus-description">
+                                        <div class="col-sm-6 fs-14">
+                                            <i class="material-icons" style="font-size:13px">watch</i>
+                                            Departure: <span class="fr">${bus.time.slice(0, 5)}hr</span>
+                                        </div>
+                                        <div class="col-sm-6 fs-14">
+                                            <i class="fa fa-road"></i> Route:
+                                            <span class="fr">${bus.from_place} - ${bus.to_place}</span>
+                                        </div>
+                                        <div class="col-sm-6 fs-14">
+                                            <i class="material-icons" style="font-size:13px">event_seat</i>
+                                            Availability: <span class="seats-left fr">${availableSeats}</span> seats left
+                                        </div>
+                                        <div class="col-sm-6 fs-14">
+                                            <i class="fa fa-money"></i> Fare:
+                                            <span class="fr">${bus.price} rupess</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-t-13">
+                                        <button class="btn btn-circle btn-success book_btn" data-bus="${bus.id}">
+                                            Book Seats
+                                        </button>
+                                        <a href="#" class="fr p-t-13 g-link">View Gallery</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                results.appendChild(col);
+            });
+
+            // Re-attach booking handlers
+            attachBookHandlers();
+        }
+
+        function attachBookHandlers() {
+            document.querySelectorAll('.book_btn').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    if (animating) return;
+                    animating = true;
+
+                    currentBusId = Number(btn.dataset.bus);
+                    selectedSeats = []; // Reset previous selections
+                    document.getElementById('counter').textContent = 0;
+                    document.getElementById('total').textContent = 0;
+
+                    // Grab price from rendered card
+                    busPrice = parseInt(
+                        btn.closest('.bus-details')
+                            .querySelector('.fa-money')
+                            .parentElement.querySelector('span.fr').textContent, 10
+                    );
+
+                    // Show bus name/number plate
+                    const busName = btn.closest('.bus-details').querySelector('.bus-name').textContent;
+                    document.querySelector('span.number_plate').textContent = busName;
+
+                    // Fetch and render seats
+                    booked_seats(currentBusId);
+
+                    // Move to seat-map fieldset (index 2)
+                    goNext(2);
+                });
+            });
+        }
+
+        // 2) FETCH + RENDER SEAT MAP
+        function booked_seats(busId) {
+            fetch(`/api/${busId}/bus`) // Ensure this matches your correct API endpoint
+                .then(res => res.json())
+                .then(json => {
+                    if (json.status !== 'success') throw new Error('Bad status');
+                    const busData = json.data[0];
+                    const seatsObj = JSON.parse(busData.seats || '{}');
+                    if (Object.keys(seatsObj).length === 0) {
+                        console.error('No seats data available');
+                        document.getElementById('seat-map').innerHTML = '<p>No seats available</p>';
+                        return;
+                    }
+                    renderSeatMap(seatsObj);
+                    // Assuming renderSelection updates the "Selected Seats" section
+                    renderSelection(); // Call this if it exists to update the UI
+                })
+                .catch(err => {
+                    console.error('Seats error:', err);
+                    document.getElementById('seat-map').innerHTML = '<p>Error loading seats. Please try again.</p>';
+                })
+                .finally(() => { animating = false; }); // Assuming animating is a global flag
+        }
+        function renderSeatMap(seatsObj) {
+            const container = document.getElementById('seat-map');
+            container.className = ''; // Remove all classes to avoid conflicts
+            container.innerHTML = ''; // Clear existing content
+
+            let rowEl = null;
+            let col = 0;
+            Object.entries(seatsObj).forEach(([seatId, isBooked]) => {
+                if (col % 4 === 0) { // Start a new row every 4 seats
+                    rowEl = document.createElement('div');
+                    rowEl.className = 'seat-row';
+                    container.appendChild(rowEl);
+                }
+
+                const s = document.createElement('div');
+                s.className = 'seat';
+                s.textContent = seatId;
+                s.dataset.seat = seatId;
+
+                if (isBooked === 1) {
+                    s.classList.add('booked');
+                } else {
+                    s.addEventListener('click', () => toggleSeat(s)); // Assuming toggleSeat is defined
+                }
+
+                rowEl.appendChild(s);
+                col++;
+            });
+        }
+        function toggleSeat(el) {
+            const id = el.dataset.seat;
+            const idx = selectedSeats.indexOf(id);
+            if (idx > -1) {
+                selectedSeats.splice(idx, 1);
+                el.classList.remove('selected');
+            } else {
+                selectedSeats.push(id);
+                el.classList.add('selected');
+            }
+            renderSelection();
+        }
+
+        function renderSelection() {
+            const list = document.getElementById('selected-seats');
+            list.innerHTML = '';
+            selectedSeats.forEach(id => {
+                const li = document.createElement('li');
+                li.textContent = id;
+                list.appendChild(li);
+            });
+            document.getElementById('counter').textContent = selectedSeats.length + ' ';
+            document.getElementById('total').textContent = selectedSeats.length * busPrice;
+        }
+
+        // Next button handler
+        document.querySelectorAll('.next_button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (animating) return;
+                animating = true;
+
+                const currentFs = btn.closest('fieldset');
+                const nextFs = currentFs.nextElementSibling;
+                const currIndex = fieldsets.indexOf(currentFs);
+                const nextIndex = fieldsets.indexOf(nextFs);
+
+                // Step 2: Update summary and fetch buses
+                if (nextIndex === 1) {
+                    const fromPlace = document.getElementById('from_place').value;
+                    const toPlace = document.getElementById('to_place').value;
+                    const date = document.getElementById('date').value;
+                    formData = { from_place: fromPlace, to_place: toPlace, date: date };
+                    console.log('Collected formData →', formData);
+                    fetchBuses(formData);
+                    document.querySelector('span.from').textContent = fromPlace;
+                    document.querySelector('span.to').textContent = toPlace;
+                }
+
+                // Step 3: Seat selection validation and JSON creation
+                if (currIndex === 2) {
+                    if (selectedSeats.length === 0) {
+                        animating = false;
+                        Lobibox.notify('error', {
+                            showClass: 'fadeInDown',
+                            hideClass: 'fadeUpDown',
+                            iconSource: 'fontAwesome',
+                            title: 'No Seat Selected!',
+                            continueDelayOnInactiveTab: true,
+                            size: 'mini',
+                            msg: 'Please select at least one seat from the selected bus.'
+                        });
+                        return;
+                    } else {
+                        // Create booking data JSON
+                        bookingData = {
+                            bus_id: currentBusId,
+                            seats: selectedSeats.slice(), // Copy array
+                            price: selectedSeats.length * busPrice
+                        };
+                        console.log('Booking data:', bookingData);
+                    }
+                }
+
+                // Step 4: Personal info validation (if applicable)
+                if (currIndex === 3) {
+                    if (!verifyInfoForm()) {
+                        animating = false;
+                        return;
+                    }
+                    UserData['name'] = document.querySelector('input[name="name"]').value;
+                    UserData['aid'] = document.querySelector('input[name="id"]').value
+                    UserData['address'] = document.querySelector('input[name="address"]').value
+                    UserData['phone'] = document.querySelector('input[name="phone"]').value
+                    console.log(JSON.stringify(UserData));
+                    //document.querySelector('span.show-email').textContent = document.querySelector('input[name="phone"]').value;
+                }
+                // inside your document.addEventListener('DOMContentLoaded', …) and within the .next_button click handler:
+                if (currIndex === 4) {
+                    // build payload exactly as your API expects
+                    const payload = {
+                        bus_id: bookingData.bus_id,
+                        price: bookingData.price,
+                        seats: bookingData.seats,
+                        userd: UserData
+                    };
+
+                    // send the booking request
+                    fetch('http://localhost:8000/api/booking', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload),
+                    })
+                        .then(res => res.json())
+                        .then(json => {
+                            if (json.status === 'success') {
+                                Lobibox.notify('success', {
+                                    title: 'Booked!',
+                                    msg: `Your seats (${bookingData.seats.join(', ')}) are confirmed.`,
+                                    size: 'mini'
+                                });
+                                console.log(`resverved data : ${json}`);
+
+                                const myButton = document.getElementById('ticket-print');
+                                myButton.addEventListener('click', function () {
+                                    
+                                    const targetURL = `http://localhost:8000/${json.booking_id}/invoice`; 
+                                    console.log(`invoice url : ${targetURL}`);
+                                    window.location.href = targetURL;
+                                });
+                                } else {
+                                    console.error(`api booking error : ${json.error}`);
+                                    Lobibox.notify('error', {
+                                        title: 'Booking Failed',
+                                        msg: json.error || 'Please try again later.',
+                                        size: 'mini'
+                                    });
+                                }
+                        })
+                        .catch(err => {
+                            console.error('Booking error:', err);
+                            Lobibox.notify('error', {
+                                title: 'Network Error',
+                                msg: 'Could not reach server. Please try again.',
+                                size: 'mini'
+                            });
+                        });
+
+
+                }
+
+                goNext(nextIndex);
+            });
+        });
+
+        // Previous button handler
+        document.querySelectorAll('.previous_button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const currentFs = btn.closest('fieldset');
+                const prevFs = currentFs.previousElementSibling;
+                if (!prevFs) return;
+                const prevIndex = fieldsets.indexOf(prevFs);
+
+                if (prevIndex === 2) {
+                    booked_seats(busId);
+                    setInterval(() => booked_seats(busId), 3000);
+                }
+                goPrev(prevIndex);
+            });
+        });
+
+        // Navigate via progress bar
+        document.querySelector('#progressbar').addEventListener('click', e => {
+            if (e.target.tagName !== 'LI') return;
+            const clickedIndex = progressItems.indexOf(e.target);
+            const activeCount = progressItems.filter(item => item.classList.contains('active')).length - 1;
+
+            if (clickedIndex > activeCount) {
+                Lobibox.notify('error', {
+                    showClass: 'fadeInDown',
+                    hideClass: 'fadeUpDown',
+                    iconSource: 'fontAwesome',
+                    title: 'Invalid Step!',
+                    continueDelayOnInactiveTab: true,
+                    size: 'mini',
+                    msg: 'Please complete the current step first.'
+                });
+            } else if (clickedIndex < activeCount) {
+                goPrev(clickedIndex);
+            }
+        });
+
+        // Prevent default date form submit
+        document.getElementById('date_form').addEventListener('submit', e => e.preventDefault());
+
+        // Helper functions
+        function goNext(nextIndex) {
+            progressItems[nextIndex].classList.add('active');
+            fieldsets[currentIndex].style.display = 'none';
+            fieldsets[nextIndex].style.display = 'block';
+            currentIndex = nextIndex;
+            animating = false;
+        }
+
+        function goPrev(prevIndex) {
+            progressItems[currentIndex].classList.remove('active');
+            fieldsets[currentIndex].style.display = 'none';
+            fieldsets[prevIndex].style.display = 'block';
+            currentIndex = prevIndex;
+            animating = false;
+        }
+        function verifyInfoForm() {
+            const nameEl = document.querySelector('input[name="name"]');
+            const idEl = document.querySelector('input[name="id"]');
+            const phoneEl = document.querySelector('input[name="phone"]');
+            const emailEl = document.querySelector('input[name="address"]');
+
+            let valid = true;
+
+            function validateName(name) {
+                const words = name.trim().split(' ');
+                return words.length >= 2 && words.every(word => word.length > 0);
+            }
+
+            function validateID(id) {
+                return id.length === 8 && !isNaN(id);
+            }
+
+            function validatePhone(phone) {
+                return phone.length === 10 && !isNaN(phone);
+            }
+
+            function validateAddress(address) {
+                return address.trim().length > 0;
+            }
+
+            const validations = [
+                [nameEl, validateName, 'Full name must have at least two words.'],
+                [idEl, validateID, 'ID must be exactly 8 digits.'],
+                [phoneEl, validatePhone, 'Phone must be exactly 10 digits.'],
+                [emailEl, validateAddress, 'Address cannot be empty.']
+            ];
+
+            validations.forEach(([el, checkFn, msg]) => {
+                const parent = el.parentElement;
+                const errorMsg = parent.querySelector('.text-danger');
+                if (errorMsg) parent.removeChild(errorMsg);
+
+                if (!el.value.trim() || !checkFn(el.value.trim())) {
+                    el.classList.add('is-invalid');
+                    const small = document.createElement('small');
+                    small.className = 'text-danger';
+                    small.textContent = el.value.trim() ? msg : `${el.name.charAt(0).toUpperCase() + el.name.slice(1)} field cannot be empty.`;
+                    parent.appendChild(small);
+                    valid = false;
+                } else {
+                    el.classList.remove('is-invalid');
+                    el.classList.add('is-valid');
+                }
+            });
+
+            return valid;
+        }
+
+    });
+
+</script>
+<!-- end of js -->
