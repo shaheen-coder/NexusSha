@@ -337,7 +337,7 @@
                         <div class="row d-flex justify-content-center">
                             <div class="col-md-10 text-center">
                                 <h6>booking done successfully </h6>
-                                <button class="form-control mb-3 w-3" id="ticket-print">print ticket</button>
+                                <button class="btn" id="ticket-print">print ticket</button>
                             </div>
                         </div>
 
@@ -569,7 +569,7 @@
             list.innerHTML = '';
             selectedSeats.forEach(id => {
                 const li = document.createElement('li');
-                li.textContent = id;
+                li.textContent = id + ',';
                 list.appendChild(li);
             });
             document.getElementById('counter').textContent = selectedSeats.length + ' ';
